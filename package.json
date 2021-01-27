@@ -4,7 +4,9 @@
   "description": "Node js rest APIs with express and pg",
   "main": "server.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "start": "webpack-dev-server --hot",
+    "build": "webpack --watch"
   },
   "repository": {
     "type": "git",
@@ -24,8 +26,13 @@
   },
   "homepage": "https://github.com/vigneshvaranb/nodeapi#readme",
   "dependencies": {
+    "bcryptjs": "^2.4.3",
+    "bluebird": "^3.7.2",
     "body-parser": "^1.19.0",
     "cors": "^2.8.5",
-    "express": "^4.17.1"
+    "express": "^4.17.1",
+    "node-build-scripts": "^0.1.19",
+    "pg": "^8.5.1",
+    "pg-promise": "^10.9.1"
   }
 }
