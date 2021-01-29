@@ -2,7 +2,7 @@ const { performTransaction, performSelect } = require ('./pgutils')
 const express = require('express');
 const app = express();
 const bodyParser = require('body-parser');
-const PORT = 5000;
+const PORT = 8000;
 const cors = require('cors');
 const bcrypt = require('bcryptjs');
 const productData = require('./rawData');
@@ -74,6 +74,34 @@ app.post("/addproduct", async function(req, res,){
     res.send('Product Added successfully');
 });
 
+app.post("/product/update", async function(req, res,){
+    const { body } = req;
+    console.log(req.body)
+    const { name, brand, product_id, colors, dimension, categories, price, weight } = body;
+    const controller = new Productservice();
+    const result = await controller.updateProduct(name, brand, product_id, colors, dimension, categories, price, weight);
+    console.log(result);
+    res.send('Product Added successfully');
+});
+
+app.post("/product/delete", async function(req, res,){
+    const { body } = req;
+    console.log(req.body)
+    const { product_id } = body;
+    const controller = new Productservice();
+    const result = await controller.deleteProduct(product_id);
+    console.log(result);
+    res.send('Product Added successfully');
+});
+
+app.get(`/product/validate/product_id`, async function(req,res){
+    console.log(req.params);
+    const { product_id } = req.params;
+    const controller = new Productservice();
+    const result = await controller.getProductById(product_id);
+    const newResult = result.length === 0 ? result[0]['status'] = 'Id does not exist' : result[0][`status`] = 'Exist';
+    res.json(newResult);
+})
 class sigupservice {
     signup(username, email, phone, encpassword) {
         const stmt = 'select * from insertsign($<username>, $<email>, $<phone>, $<encpassword>)';
@@ -100,14 +128,31 @@ class loginservice{
 
 class Productservice{
     addProduct(name, brand, product_id, colors) {
-        const stmt = 'select * from insertproduct($<name>, $<brand>, $<product_id>, $<colors>)';
-        const values = { name, brand, product_id, colors };
+        const stmt = 'select * from insertproduct($<name>, $<brand>, $<product_id>, $<colors>, $<effstatus>)';
+        const values = { name, brand, product_id, colors, effstatus: 'A' };
         const batch = [{ statement: stmt, values }];
         return performTransaction(batch);
     }
     allProduct() {
         const stmt = 'select * from getAllProduct()';
         const values = {};
+        return performSelect(stmt, values);
+    }
+    updateProduct(name, brand, product_id, colors, dimension, categories, price, weight) {
+        const stmt = 'select * from updateproduct($<name>, $<brand>, $<product_id>, $<colors>, $<dimension>, $<categories>, $<price>, $<weight>)';
+        const values = { name, brand, product_id, colors, dimension, categories, price, weight };
+        const batch = [{ statement: stmt, values }];
+        return performTransaction(batch);
+    }
+    deleteProduct(product_id) {
+        const stmt = 'select * from deleteproduct($<product_id>)';
+        const values = { product_id };
+        const batch = [{ statement: stmt, values }];
+        return performTransaction(batch);
+    }
+    getProductById(product_id){
+        const stmt = 'select * from getproductbyid($<product_id>)';
+        const values = { product_id };
         return performSelect(stmt, values);
     }
 }
